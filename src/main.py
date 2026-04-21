@@ -43,7 +43,7 @@ def add_tp_to_existing_positions():
             }
 
             result = mt5.order_send(request)
-            log(f"TP ADDED → ticket: {p.ticket} | TP: {tp_price}")
+            log(f"TP ADDED -> ticket: {p.ticket} | TP: {tp_price}")
 
 
 def run():
@@ -56,7 +56,7 @@ def run():
         ensure_connection()
 
         if not is_market_open():
-            log("MARKET CLOSED → waiting")
+            log("MARKET CLOSED -> waiting")
             time.sleep(1)
             continue
 
@@ -74,7 +74,7 @@ def run():
 
         # ================= HEADER =================
         log("========================================")
-        log(f"PRICE → ASK: {ask} | BID: {bid} | SPREAD: {spread}")
+        log(f"PRICE -> ASK: {ask} | BID: {bid} | SPREAD: {spread}")
         log(f"POSITIONS COUNT: {len(positions)}")
 
         if positions:
@@ -84,11 +84,11 @@ def run():
 
         # ================= POSITION DETAILS =================
         for p in positions:
-            log(f"POS → ticket: {p['ticket']} | buy: {p['price']} | tp: {p['tp']}")
+            log(f"POS -> ticket: {p['ticket']} | buy: {p['price']} | tp: {p['tp']}")
 
         # ================= FIRST BUY =================
         if not positions:
-            log("DECISION → FIRST BUY")
+            log("DECISION -> FIRST BUY")
 
             place_buy(ask)
             time.sleep(0.2)
@@ -103,14 +103,14 @@ def run():
 
         # ================= DECISION =================
         if ask <= next_buy_level:
-            log("DECISION → GRID BUY TRIGGERED")
+            log("DECISION -> GRID BUY TRIGGERED")
 
             place_buy(ask)
             time.sleep(0.2)
             continue
 
         # ================= HOLD =================
-        log("DECISION → HOLD (price not low enough)")
+        log("DECISION -> HOLD (price not low enough)")
 
         time.sleep(SLEEP_SECONDS)
 
