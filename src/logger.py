@@ -19,23 +19,19 @@ if not logger.handlers:
         "%(asctime)s | %(levelname)s | %(message)s"
     )
 
-    # ✅ File rotation (smaller + controlled)
+    # ✅ File rotation
     file_handler = RotatingFileHandler(
         LOG_FILE,
-        maxBytes=2 * 1024 * 1024,   # 2 MB per file (reduced)
-        backupCount=3               # keep only 3 files
+        maxBytes=2 * 1024 * 1024,   # 2 MB
+        backupCount=3               # keep 3 files
     )
     file_handler.setFormatter(formatter)
 
-    # ✅ Console output
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-
+    # ✅ ONLY file handler (no console)
     logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
 
 
-# ✅ Auto-clean old logs (extra safety)
+# ✅ Auto-clean old logs
 def cleanup_old_logs(days=2):
     now = datetime.now()
     for file in os.listdir(LOG_DIR):
@@ -49,7 +45,6 @@ def cleanup_old_logs(days=2):
                     pass
 
 
-# Run cleanup once when logger loads
 cleanup_old_logs()
 
 
