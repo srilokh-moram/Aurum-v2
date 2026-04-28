@@ -12,14 +12,15 @@ if /I "%RUN_SUMMARY%"=="true" (
 )
 
 :loop
-echo ======================================
-echo Starting bot...
-echo ======================================
-
-venv\Scripts\python.exe src\main.py >> logs\runner.log 2>&1
 
 echo ======================================
-echo Bot crashed. Restarting...
+echo [%date% %time%] Starting bot...
+echo ======================================
+
+venv\Scripts\python.exe src\main.py
+
+echo ======================================
+echo [%date% %time%] Bot crashed. Restarting...
 echo ======================================
 
 ping 127.0.0.1 -n 6 > nul
