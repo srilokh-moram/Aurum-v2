@@ -4,7 +4,7 @@ cd /d C:\Users\Administrator\Documents\Aurum
 
 if not exist logs mkdir logs
 
-set RUN_SUMMARY=false
+set RUN_SUMMARY=true
 
 if /I "%RUN_SUMMARY%"=="true" (
     echo Starting Daily Summary Scheduler...

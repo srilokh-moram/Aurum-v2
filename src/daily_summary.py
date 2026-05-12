@@ -1,6 +1,6 @@
 import MetaTrader5 as mt5
-from datetime import datetime, timedelta
-from twilio.rest import Client
+from datetime import datetime
+import requests
 import os
 from dotenv import load_dotenv
 
@@ -9,12 +9,8 @@ load_dotenv()
 # ================= CONFIG =================
 SYMBOL = os.getenv("SYMBOL")
 
-TWILIO_SID = os.getenv("TWILIO_SID")
-TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
-WHATSAPP_FROM = "whatsapp:+14155238886"
-
-# 👉 Add multiple recipients (comma-separated in .env)
-RECIPIENTS = os.getenv("WHATSAPP_TO_LIST", "").split(",")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_IDS = os.getenv("TELEGRAM_CHAT_IDS", "").split(",")
 
 MT5_LOGIN = int(os.getenv("MT5_LOGIN"))
 MT5_PASSWORD = os.getenv("MT5_PASSWORD")
@@ -37,7 +33,7 @@ today_count = 0
 
 if deals_today:
     for d in deals_today:
-        if d.entry == 1:  # closed trades
+        if d.entry == 1:
             today_profit += d.profit
             today_count += 1
 
@@ -61,35 +57,35 @@ if positions:
     floating_pl = sum(p.profit for p in positions)
 
 # ================= MESSAGE =================
-msg = f"""
-📊 Trading Summary – {SYMBOL}
+msg = (
+    f"📊 *Trading Summary - {SYMBOL}*\n\n"
+    f"📅 Date: {now.strftime('%Y-%m-%d')}\n\n"
+    f"✅ Deals Today: {today_count}\n"
+    f"💰 Profit Today: ${round(today_profit, 2)}\n"
+    f"📈 Total Profit: ${round(total_profit, 2)}\n\n"
+    f"📂 Open Positions: {open_count}\n"
+    f"⚖️ Floating P/L: ${round(floating_pl, 2)}"
+)
 
-Date: {now.strftime('%Y-%m-%d')}
+# ================= SEND TELEGRAM =================
+url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
-Deals Today: {today_count}
-Profit Today: ${round(today_profit, 2)}
-Total Profit: ${round(total_profit, 2)}
-
-Open Positions: {open_count}
-Floating P/L: ${round(floating_pl, 2)}
-"""
-
-# ================= SEND WHATSAPP =================
-client = Client(TWILIO_SID, TWILIO_TOKEN)
-
-for number in RECIPIENTS:
-    number = number.strip()
-    if not number:
+for chat_id in CHAT_IDS:
+    chat_id = chat_id.strip()
+    if not chat_id:
         continue
 
     try:
-        message = client.messages.create(
-            body=msg,
-            from_=WHATSAPP_FROM,
-            to=f"whatsapp:{number}"
-        )
-        print(f"Message sent to {number}: {message.sid}")
+        r = requests.post(url, json={
+            "chat_id": chat_id,
+            "text": msg,
+            "parse_mode": "Markdown"
+        })
+        if r.status_code == 200:
+            print(f"Sent to {chat_id}")
+        else:
+            print(f"Failed to {chat_id}: {r.text}")
     except Exception as e:
-        print(f"Failed to send to {number}: {e}")
+        print(f"Error sending to {chat_id}: {e}")
 
 mt5.shutdown()
